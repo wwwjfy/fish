@@ -3666,6 +3666,159 @@ int builtin_parse(parser_t &parser, wchar_t **argv)
     return STATUS_BUILTIN_OK;
 }
 
+static int builtin_string(parser_t &parser, wchar_t **argv)
+{
+    int argc = builtin_count_args(argv);
+    woptind = 0;
+    wchar_t *pattern = NULL;
+    wchar_t *range = NULL;
+    size_t length;
+    bool show_length = false;
+
+    const struct woption long_options[] =
+    {
+        { L"pattern", required_argument, 0, 'p' } ,
+        { L"range", required_argument, 0, 'r' },
+        { L"length", no_argument, 0, 'l' },
+        { 0, 0, 0, 0 }
+    };
+
+    while (1)
+    {
+        int opt_index = 0;
+
+        int opt = wgetopt_long(argc,
+                               argv,
+                               L"lp:r:",
+                               long_options,
+                               &opt_index);
+        if (opt == -1)
+            break;
+
+        switch (opt)
+        {
+            case 0:
+                if (long_options[opt_index].flag != 0)
+                    break;
+                append_format(stderr_buffer,
+                              BUILTIN_ERR_UNKNOWN,
+                              argv[0],
+                              long_options[opt_index].name);
+                builtin_print_help(parser, argv[0], stderr_buffer);
+                return STATUS_BUILTIN_ERROR;
+
+            case 'p':
+                pattern = woptarg;
+                break;
+
+            case 'r':
+                range = woptarg;
+                break;
+
+            case 'l':
+                show_length = true;
+                break;
+        }
+    }
+
+    if (pattern && range && show_length)
+    {
+        // TODO
+        return STATUS_BUILTIN_ERROR;
+    }
+    if (!pattern && !range && !show_length)
+    {
+        // TODO
+        return STATUS_BUILTIN_ERROR;
+    }
+
+    if ((woptind + 1) != argc)
+    {
+        // TODO
+        return STATUS_BUILTIN_ERROR;
+    }
+
+    length = wcslen(argv[woptind]);
+    if (show_length)
+    {
+        stdout_buffer.append(to_string<size_t>(length));
+    }
+    else if (range)
+    {
+        if (*range == L'\0')
+        {
+            // TODO
+            return STATUS_BUILTIN_ERROR;
+        }
+        size_t start = 0;
+        size_t end = length;
+        size_t idx = 0;
+        bool dash_found = false;
+        while (true)
+        {
+            if (range[idx] == L'\0')
+                break;
+            if (range[idx] == L'-')
+            {
+                if (dash_found)
+                {
+                    // TODO
+                    return STATUS_BUILTIN_ERROR;
+                }
+                else
+                {
+                    dash_found = true;
+                    idx++;
+                    continue;
+                }
+            }
+            if (iswdigit(range[idx]))
+            {
+                size_t *value = dash_found ? &end : &start;
+                *value = 0;
+                do
+                {
+                    *value = (*value) * 10 + range[idx++] - L'0';
+                } while (iswdigit(range[idx]));
+            }
+            else
+            {
+                // TODO
+                return STATUS_BUILTIN_ERROR;
+            }
+        }
+        if (!dash_found)
+            end = start + 1;
+        if (start > end)
+        {
+            // TODO
+            return STATUS_BUILTIN_ERROR;
+        }
+        if (start > length || end > length)
+        {
+            // TODO
+            return STATUS_BUILTIN_ERROR;
+        }
+        stdout_buffer.append(wcstring(argv[woptind], start - 1, end - start + 1));
+        return STATUS_BUILTIN_OK;
+    }
+    else if (pattern)
+    {
+        wchar_t *pos = wcsstr(argv[woptind], pattern);
+        if (!pos)
+        {
+            stdout_buffer.append(argv[woptind]);
+        }
+        else
+        {
+            stdout_buffer.append(wcstring(argv[woptind], pos));
+        }
+    }
+
+    return STATUS_BUILTIN_OK;
+}
+
+
 /*
   END OF BUILTIN COMMANDS
   Below are functions for handling the builtin commands.
@@ -3721,6 +3874,7 @@ static const builtin_data_t builtin_datas[]=
     { 		L"set_color",  &builtin_set_color, N_(L"Set the terminal color")   },
     { 		L"source",  &builtin_source, N_(L"Evaluate contents of file")   },
     { 		L"status",  &builtin_status, N_(L"Return status information about fish")  },
+    { 		L"string",  &builtin_string, N_(L"String manipulate utility")   },
     { 		L"switch",  &builtin_generic, N_(L"Conditionally execute a block of commands")   },
     { 		L"test",  &builtin_test, N_(L"Test a condition")   },
     { 		L"ulimit",  &builtin_ulimit, N_(L"Set or get the shells resource usage limits")  },
