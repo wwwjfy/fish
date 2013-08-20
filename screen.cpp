@@ -1095,12 +1095,12 @@ static screen_layout_t compute_layout(screen_t *s,
     size_t left_prompt_width = left_prompt_layout.last_line_width;
     size_t right_prompt_width = right_prompt_layout.last_line_width;
 
-    if (left_prompt_layout.max_line_width > screen_width)
-    {
-        /* If we have a multi-line prompt, see if the longest line fits; if not neuter the whole left prompt */
-        left_prompt = L"> ";
-        left_prompt_width = 2;
-    }
+    // if (left_prompt_layout.max_line_width > screen_width)
+    // {
+    //     /* If we have a multi-line prompt, see if the longest line fits; if not neuter the whole left prompt */
+    //     left_prompt = L"> ";
+    //     left_prompt_width = 2;
+    // }
 
     if (left_prompt_width + right_prompt_width >= screen_width)
     {
@@ -1109,12 +1109,12 @@ static screen_layout_t compute_layout(screen_t *s,
         right_prompt_width = 0;
     }
 
-    if (left_prompt_width + right_prompt_width >= screen_width)
-    {
-        /* Still doesn't fit, neuter left_prompt */
-        left_prompt = L"> ";
-        left_prompt_width = 2;
-    }
+    // if (left_prompt_width + right_prompt_width >= screen_width)
+    // {
+    //     /* Still doesn't fit, neuter left_prompt */
+    //     left_prompt = L"> ";
+    //     left_prompt_width = 2;
+    // }
 
     /* Now we should definitely fit */
     assert(left_prompt_width + right_prompt_width < screen_width);
