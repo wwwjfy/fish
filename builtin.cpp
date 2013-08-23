@@ -35,6 +35,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stack>
+#include <regex>
 
 #include "fallback.h"
 #include "util.h"
@@ -3723,18 +3724,18 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
 
     if (pattern && range && show_length)
     {
-        // TODO
+        // TODO: argu
         return STATUS_BUILTIN_ERROR;
     }
     if (!pattern && !range && !show_length)
     {
-        // TODO
+        // TODO: argu
         return STATUS_BUILTIN_ERROR;
     }
 
     if ((woptind + 1) != argc)
     {
-        // TODO
+        // TODO: argu
         return STATUS_BUILTIN_ERROR;
     }
 
@@ -3747,7 +3748,7 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
     {
         if (*range == L'\0')
         {
-            // TODO
+            // TODO: missing argu
             return STATUS_BUILTIN_ERROR;
         }
         size_t start = 0;
@@ -3762,7 +3763,7 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
             {
                 if (dash_found)
                 {
-                    // TODO
+                    // TODO: two dashes
                     return STATUS_BUILTIN_ERROR;
                 }
                 else
@@ -3783,7 +3784,7 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
             }
             else
             {
-                // TODO
+                // TODO: non-digital cahr
                 return STATUS_BUILTIN_ERROR;
             }
         }
@@ -3791,12 +3792,12 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
             end = start + 1;
         if (start > end)
         {
-            // TODO
+            // TODO: start > end
             return STATUS_BUILTIN_ERROR;
         }
         if (start > length || end > length)
         {
-            // TODO
+            // TODO: index out of range
             return STATUS_BUILTIN_ERROR;
         }
         stdout_buffer.append(wcstring(argv[woptind], start - 1, end - start + 1));
@@ -3804,14 +3805,23 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
     }
     else if (pattern)
     {
-        wchar_t *pos = wcsstr(argv[woptind], pattern);
-        if (!pos)
+        if (*pattern == L'\0')
         {
-            stdout_buffer.append(argv[woptind]);
+            // TODO: missing argu
+            return STATUS_BUILTIN_ERROR;
         }
-        else
-        {
-            stdout_buffer.append(wcstring(argv[woptind], pos));
+        std::wregex re_pattern(pattern);
+        std::wsmatch match;
+        if (std::regex_search(wcstring(argv[woptind]), match, re_pattern)) {
+          std::wssub_match sub_match;
+          if (match.size() == 1) {
+            sub_match = match[0];
+          } else {
+            sub_match = match[1];
+          }
+          stdout_buffer.append(format_string(L"%ls\n", sub_match.str().c_str()));
+        } else {
+          return STATUS_BUILTIN_ERROR;
         }
     }
 
