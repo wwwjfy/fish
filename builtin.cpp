@@ -3812,7 +3812,8 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
         }
         std::wregex re_pattern(pattern);
         std::wsmatch match;
-        if (std::regex_search(wcstring(argv[woptind]), match, re_pattern)) {
+        wcstring line = wcstring(argv[woptind]);
+        if (std::regex_search(line, match, re_pattern)) {
           std::wssub_match sub_match;
           if (match.size() == 1) {
             sub_match = match[0];
