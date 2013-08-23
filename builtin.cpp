@@ -3789,7 +3789,7 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
             }
         }
         if (!dash_found)
-            end = start + 1;
+            end = start;
         if (start > end)
         {
             // TODO: start > end
