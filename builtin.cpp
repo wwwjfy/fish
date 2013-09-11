@@ -3813,16 +3813,22 @@ static int builtin_string(parser_t &parser, wchar_t **argv)
         std::wregex re_pattern(pattern);
         std::wsmatch match;
         wcstring line = wcstring(argv[woptind]);
-        if (std::regex_search(line, match, re_pattern)) {
-          std::wssub_match sub_match;
-          if (match.size() == 1) {
-            sub_match = match[0];
-          } else {
-            sub_match = match[1];
-          }
-          stdout_buffer.append(format_string(L"%ls\n", sub_match.str().c_str()));
-        } else {
-          return STATUS_BUILTIN_ERROR;
+        if (std::regex_search(line, match, re_pattern))
+        {
+            std::wssub_match sub_match;
+            if (match.size() == 1)
+            {
+                sub_match = match[0];
+            }
+            else
+            {
+                sub_match = match[1];
+            }
+            stdout_buffer.append(format_string(L"%ls\n", sub_match.str().c_str()));
+        }
+        else
+        {
+            return STATUS_BUILTIN_ERROR;
         }
     }
 
